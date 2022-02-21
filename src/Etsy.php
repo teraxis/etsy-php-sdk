@@ -56,6 +56,7 @@ class Etsy {
     if(isset($response->results)) {
       return static::createCollection($response, $resource);
     }
+    return $response; // return clear array without protection
     return static::createResource($response, $resource);
   }
 
@@ -86,6 +87,7 @@ class Etsy {
    */
   public static function createCollectionResources(array $records, string $resource) {
     $resource = __NAMESPACE__ . "\\Resources\\{$resource}";
+    return $records; // return clear array without protection
     return array_map(function($record) use($resource) {
       return new $resource($record);
     }, $records);
@@ -122,8 +124,10 @@ class Etsy {
    *
    * @return Etsy\Resources\User
    */
-  public function getUser() {
-    $user_id = explode(".", $this->api_key)[0];
+  public function getUser(int $user_id = null) { // allow get different user
+    if(!$user_id) {
+      $user_id = explode(".", $this->api_key)[0];
+    }
     $response = static::$client->get("/application/users/{$user_id}");
     return static::getResource($response, "User");
   }
